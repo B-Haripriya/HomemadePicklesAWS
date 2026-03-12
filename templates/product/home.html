@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}Home – HomeMade Pickles & Snacks{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════ HERO ════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+    <div class="hero-bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+    <div class="hero-content">
+        <div class="hero-text">
+            <span class="hero-badge">🏡 Homemade &amp; Authentic</span>
+            <h1 class="hero-title">
+                Taste the <span class="gradient-text">Best</span><br />
+                Pickles &amp; Snacks
+            </h1>
+            <p class="hero-sub">
+                Sun-dried, stone-ground, and slow-fermented using age-old recipes.<br />
+                No preservatives. Pure tradition. Delivered to your door.
+            </p>
+            <div class="hero-actions">
+                <a href="{{ url_for('product.product_list') }}" class="btn btn-primary btn-lg">
+                    <i class="fa fa-shopping-bag"></i> Shop Now
+                </a>
+                <a href="{{ url_for('subscription.plans') }}" class="btn btn-outline btn-lg">
+                    <i class="fa fa-calendar-check"></i> Subscribe &amp; Save
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat"><span class="stat-num">10k+</span><span class="stat-label">Happy Customers</span>
+                </div>
+                <div class="stat"><span class="stat-num">50+</span><span class="stat-label">Recipes</span></div>
+                <div class="stat"><span class="stat-num">4.9★</span><span class="stat-label">Rating</span></div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="hero-blob"></div>
+            <div class="jar-float">
+                <img src="{{ url_for('static', filename='img/hero_pickle_jar.png') }}" alt="Pickle Jar" class="jar-img"
+                    onerror="this.onerror=null;this.src=''" />
+                <div class="jar-fallback-emoji">🫙</div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-wave">
+        <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="var(--bg-primary)" />
+        </svg>
+    </div>
+</section>
+
+<!-- ═══════════════════ TRUST BADGES ════════════════════════════════════════ -->
+<section class="trust-section">
+    <div class="container">
+        <div class="trust-grid">
+            <div class="trust-item">
+                <i class="fa fa-leaf trust-icon"></i>
+                <div><strong>100% Natural</strong>
+                    <p>No artificial preservatives</p>
+                </div>
+            </div>
+            <div class="trust-item">
+                <i class="fa fa-truck trust-icon"></i>
+                <div><strong>Free Delivery</strong>
+                    <p>On orders above ₹499</p>
+                </div>
+            </div>
+            <div class="trust-item">
+                <i class="fa fa-shield-halved trust-icon"></i>
+                <div><strong>Secure Payment</strong>
+                    <p>100% safe checkout</p>
+                </div>
+            </div>
+            <div class="trust-item">
+                <i class="fa fa-rotate-left trust-icon"></i>
+                <div><strong>Easy Returns</strong>
+                    <p>7-day return policy</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════ CATEGORIES ══════════════════════════════════════════ -->
+<section class="section categories-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Browse</span>
+            <h2 class="section-title">Shop by Category</h2>
+        </div>
+        <div class="categories-grid">
+            {% set cat_data = [
+            ('Pickles', '🥒', 'Traditional sun-dried pickles'),
+            ('Snacks', '🍿', 'Crunchy homemade namkeen'),
+            ('Combos', '🎁', 'Best value combo packs'),
+            ('Gift Packs', '🧺', 'Perfect festive hampers'),
+            ] %}
+            {% for cat, emoji, desc in cat_data %}
+            <a href="{{ url_for('product.product_list', category=cat) }}" class="cat-card">
+                <div class="cat-emoji">{{ emoji }}</div>
+                <h3 class="cat-name">{{ cat }}</h3>
+                <p class="cat-desc">{{ desc }}</p>
+                <span class="cat-arrow"><i class="fa fa-arrow-right"></i></span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════ FEATURED PRODUCTS ═══════════════════════════════════ -->
+<section class="section featured-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">New Arrivals</span>
+            <h2 class="section-title">Featured Products</h2>
+            <a href="{{ url_for('product.product_list') }}" class="view-all-link">View All <i
+                    class="fa fa-arrow-right"></i></a>
+        </div>
+        <div class="products-grid">
+            {% for product in featured %}
+            <div class="product-card" data-product-id="{{ product.product_id }}">
+                <div class="product-image-wrap">
+                    {% if product.image_url %}
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-img" loading="lazy" />
+                    {% else %}
+                    <div class="product-img-placeholder">{{ '🥒' if product.category == 'Pickles' else '🍿' if
+                        product.category == 'Snacks' else '🎁' }}</div>
+                    {% endif %}
+                    <div class="product-overlay">
+                        <a href="{{ url_for('product.product_detail', product_id=product.product_id) }}"
+                            class="btn btn-sm btn-white">Quick View</a>
+                    </div>
+                    {% if product.stock == 0 %}
+                    <span class="stock-badge out">Out of Stock</span>
+                    {% elif product.stock <= 5 %} <span class="stock-badge low">Only {{ product.stock }} Left!</span>
+                        {% endif %}
+                </div>
+                <div class="product-info">
+                    <span class="product-category">{{ product.category }}</span>
+                    <h3 class="product-name">
+                        <a href="{{ url_for('product.product_detail', product_id=product.product_id) }}">{{ product.name
+                            }}</a>
+                    </h3>
+                    <p class="product-weight">{{ product.weight }}</p>
+                    <div class="product-footer">
+                        <span class="product-price">₹{{ "%.0f"|format(product.price) }}</span>
+                        {% if product.stock > 0 %}
+                        <form action="{{ url_for('cart.add_to_cart') }}" method="POST" class="add-cart-form">
+                            <input type="hidden" name="product_id" value="{{ product.product_id }}" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" class="btn btn-sm btn-primary add-cart-btn">
+                                <i class="fa fa-cart-plus"></i> Add
+                            </button>
+                        </form>
+                        {% else %}
+                        <button class="btn btn-sm btn-disabled" disabled>Sold Out</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p class="empty-msg">No products yet. Check back soon!</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════ PERSONALIZED RECOMMENDATIONS ════════════════════════ -->
+{% if recommendations %}
+<section class="section reco-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Just for You</span>
+            <h2 class="section-title">Recommended for {{ session.get('user_name', 'You').split()[0] }}</h2>
+        </div>
+        <div class="products-grid">
+            {% for product in recommendations %}
+            <div class="product-card">
+                <div class="product-image-wrap">
+                    <div class="product-img-placeholder reco-emoji">{{ '🥒' if product.category == 'Pickles' else '🍿'
+                        }}</div>
+                </div>
+                <div class="product-info">
+                    <span class="product-category">{{ product.category }}</span>
+                    <h3 class="product-name">
+                        <a href="{{ url_for('product.product_detail', product_id=product.product_id) }}">{{ product.name
+                            }}</a>
+                    </h3>
+                    <div class="product-footer">
+                        <span class="product-price">₹{{ "%.0f"|format(product.price) }}</span>
+                        <a href="{{ url_for('product.product_detail', product_id=product.product_id) }}"
+                            class="btn btn-sm btn-outline">View</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ═══════════════════ SUBSCRIPTION CTA ════════════════════════════════════ -->
+<section class="section sub-cta-section">
+    <div class="container">
+        <div class="sub-cta-card">
+            <div class="sub-cta-text">
+                <h2>Never Run Out of Your Favourites 🎉</h2>
+                <p>Subscribe to our weekly or monthly delivery plans and save up to 20% on every order.</p>
+                <div class="sub-cta-btns">
+                    <a href="{{ url_for('subscription.plans') }}" class="btn btn-primary btn-lg">View Plans</a>
+                    <a href="{{ url_for('subscription.subscribe') }}?plan=weekly"
+                        class="btn btn-outline btn-lg">Subscribe Now</a>
+                </div>
+            </div>
+            <div class="sub-cta-image">📦🥒🍿</div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════ TESTIMONIALS ════════════════════════════════════════ -->
+<section class="section testimonials-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">Reviews</span>
+            <h2 class="section-title">What Our Customers Say</h2>
+        </div>
+        <div class="testimonials-grid">
+            {% for t in [
+            ('Priya S.', 'Pune', '⭐⭐⭐⭐⭐', 'The mango pickle is absolutely heavenly! Tastes exactly like what my
+            grandmother used to make. Will definitely reorder!'),
+            ('Rahul M.', 'Mumbai', '⭐⭐⭐⭐⭐', 'Signed up for the weekly subscription — best decision ever. Fresh,
+            authentic, and super convenient.'),
+            ('Anjali K.', 'Bangalore', '⭐⭐⭐⭐⭐', 'Ordered the Festival Gift Hamper for Diwali. Everyone loved it!
+            Packaging was beautiful too.'),
+            ] %}
+            <div class="testimonial-card">
+                <div class="testimonial-stars">{{ t[2] }}</div>
+                <p class="testimonial-text">"{{ t[3] }}"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar">{{ t[0][0] }}</div>
+                    <div><strong>{{ t[0] }}</strong><span>{{ t[1] }}</span></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Manage Users – Admin{% endblock %}
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <div>
+                <h1 class="admin-page-title"><i class="fa fa-users"></i> Manage Users</h1>
+                <p class="admin-page-sub">{{ users | length }} registered user(s)</p>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline">
+                <i class="fa fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+
+        {% if users %}
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Orders</th>
+                        <th>Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar-sm">{{ user.name[0].upper() }}</div>
+                                <strong>{{ user.name }}</strong>
+                            </div>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.phone or '–' }}</td>
+                        <td>
+                            <span class="badge badge-{{ 'danger' if user.role == 'admin' else 'info' }}">
+                                {{ user.role | capitalize }}
+                            </span>
+                        </td>
+                        <td>{{ user.order_ids | length if user.order_ids else 0 }}</td>
+                        <td class="date-cell">{{ user.created_at[:10] if user.created_at else '–' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">👥</div>
+            <h3>No Users Yet</h3>
+            <p>Registered users will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}My Subscriptions – HomeMade Pickles & Snacks{% endblock %}
+{% block content %}
+<section class="section sub-section">
+    <div class="container">
+        <h1 class="section-title"><i class="fa fa-rotate"></i> My Subscriptions</h1>
+        {% if subscriptions %}
+        <div class="orders-list">
+            {% for sub in subscriptions %}
+            <div class="order-card">
+                <div class="order-card-header">
+                    <div>
+                        <strong>{{ sub.plan_name }}</strong>
+                        <span class="order-id mono">#{{ sub.SubscriptionID[:8].upper() }}</span>
+                    </div>
+                    <span class="order-status-badge status-{{ sub.status }}">{{ sub.status.title() }}</span>
+                </div>
+                <div class="order-card-body">
+                    <div>
+                        <span class="conf-label">Price:</span> ₹{{ sub.price }}<br />
+                        <span class="conf-label">Next Delivery:</span> {{ sub.next_delivery[:10] }}<br />
+                        <span class="conf-label">Address:</span> {{ sub.address }}
+                    </div>
+                    {% if sub.status == 'active' %}
+                    <form action="{{ url_for('subscription.cancel_subscription', sub_id=sub.SubscriptionID) }}"
+                        method="POST" onsubmit="return confirm('Cancel this subscription?')">
+                        <button type="submit" class="btn btn-sm btn-danger-outline">
+                            <i class="fa fa-times"></i> Cancel
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-emoji">📭</div>
+            <h2>No active subscriptions</h2>
+            <p>Subscribe to our delivery plans and never miss your favourite pickles!</p>
+            <a href="{{ url_for('subscription.plans') }}" class="btn btn-primary btn-lg">View Plans</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

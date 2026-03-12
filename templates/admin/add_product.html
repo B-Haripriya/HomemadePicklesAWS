@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block title %}Add Product – Admin{% endblock %}
+{% block content %}
+<section class="section admin-section">
+    <div class="container">
+        <div class="admin-page-header">
+            <h1 class="admin-title"><i class="fa fa-plus"></i> Add New Product</h1>
+            <a href="{{ url_for('admin.manage_products') }}" class="btn btn-outline"><i class="fa fa-arrow-left"></i>
+                Back</a>
+        </div>
+        <div class="admin-form-card">
+            <form action="{{ url_for('admin.add_product_view') }}" method="POST" enctype="multipart/form-data"
+                class="admin-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Product Name *</label>
+                        <input type="text" name="name" class="form-input" placeholder="e.g. Mango Pickle" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <select name="category" class="form-input" required>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description *</label>
+                    <textarea name="description" class="form-input" rows="3" placeholder="Describe the product..."
+                        required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Price (₹) *</label>
+                        <input type="number" name="price" class="form-input" min="1" step="0.01" placeholder="149.00"
+                            required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Stock Quantity *</label>
+                        <input type="number" name="stock" class="form-input" min="0" placeholder="50" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Weight / Size</label>
+                        <input type="text" name="weight" class="form-input" placeholder="500g" />
+                    </div>
+                </div>
+
+                <!-- ── Image Upload Section ── -->
+                <div class="form-group">
+                    <label class="form-label">Product Image</label>
+
+                    <!-- Drag & Drop Upload Zone -->
+                    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('image_file').click()">
+                        <div class="upload-zone-content" id="uploadPrompt">
+                            <div class="upload-icon">📸</div>
+                            <p class="upload-title">Click or drag & drop an image here</p>
+                            <p class="upload-hint">PNG, JPG, JPEG, GIF, WEBP · Max 5MB</p>
+                        </div>
+                        <img id="imagePreview" src="" alt="Preview" class="upload-preview" style="display:none;" />
+                        <button type="button" id="removeImage" class="remove-img-btn" style="display:none;"
+                            onclick="removeImage(event)">✕ Remove</button>
+                    </div>
+                    <input type="file" id="image_file" name="image_file" accept="image/*" style="display:none;"
+                        onchange="previewImage(event)" />
+
+                    <!-- OR separator -->
+                    <div class="or-divider"><span>or paste an image URL</span></div>
+
+                    <input type="url" name="image_url" id="image_url" class="form-input"
+                        placeholder="https://example.com/image.jpg" />
+                    <small class="form-hint">Uploaded file takes priority over a URL if both are provided.</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="fa fa-save"></i> Save
+                        Product</button>
+                    <a href="{{ url_for('admin.manage_products') }}" class="btn btn-outline btn-lg">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<style>
+    .upload-zone {
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.03);
+        transition: border-color 0.2s, background 0.2s;
+        position: relative;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.dragover {
+        border-color: #f5a623;
+        background: rgba(245, 166, 35, 0.06);
+    }
+
+    .upload-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .upload-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0.25rem 0;
+    }
+
+    .upload-hint {
+        font-size: 0.8rem;
+        color: #888;
+        margin: 0;
+    }
+
+    .upload-preview {
+        max-height: 200px;
+        max-width: 100%;
+        border-radius: 8px;
+        object-fit: contain;
+    }
+
+    .remove-img-btn {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        background: rgba(220, 53, 69, 0.85);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 0.8rem;
+        cursor: pointer;
+    }
+
+    .or-divider {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin: 1rem 0 0.5rem;
+        color: #888;
+        font-size: 0.85rem;
+    }
+
+    .or-divider::before,
+    .or-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .form-hint {
+        font-size: 0.78rem;
+        color: #888;
+        margin-top: 4px;
+        display: block;
+    }
+</style>
+
+<script>
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('imagePreview').src = e.target.result;
+            document.getElementById('imagePreview').style.display = 'block';
+            document.getElementById('uploadPrompt').style.display = 'none';
+            document.getElementById('removeImage').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeImage(e) {
+        e.stopPropagation();
+        document.getElementById('image_file').value = '';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('uploadPrompt').style.display = 'flex';
+        document.getElementById('uploadPrompt').style.flexDirection = 'column';
+        document.getElementById('removeImage').style.display = 'none';
+    }
+
+    // Drag & Drop support
+    const zone = document.getElementById('uploadZone');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length) {
+            document.getElementById('image_file').files = files;
+            previewImage({ target: { files } });
+        }
+    });
+</script>
+{% endblock %}

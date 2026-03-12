@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Order Confirmed – HomeMade Pickles & Snacks{% endblock %}
+{% block content %}
+<section class="section confirmation-section">
+    <div class="container">
+        <div class="confirmation-card">
+            <div class="confirmation-icon animate-pop">✅</div>
+            <h1 class="confirmation-title">Order Confirmed!</h1>
+            {% if msg %}
+            <p class="confirmation-msg">{{ msg }}</p>
+            {% endif %}
+
+            {% if order %}
+            <div class="confirmation-details">
+                <div class="conf-detail-row">
+                    <span class="conf-label">Order ID</span>
+                    <span class="conf-value mono">#{{ order.order_id[:8].upper() }}</span>
+                </div>
+                <div class="conf-detail-row">
+                    <span class="conf-label">Payment</span>
+                    <span class="conf-value status-paid">{{ order.payment_method }} – {{ order.payment_status.title()
+                        }}</span>
+                </div>
+                <div class="conf-detail-row">
+                    <span class="conf-label">Status</span>
+                    <span class="conf-value status-confirmed">{{ order.order_status.title() }}</span>
+                </div>
+                <div class="conf-detail-row">
+                    <span class="conf-label">Total</span>
+                    <span class="conf-value price-big">₹{{ "%.2f"|format(order.total_amount) }}</span>
+                </div>
+                <div class="conf-detail-row">
+                    <span class="conf-label">Delivery To</span>
+                    <span class="conf-value">{{ order.address }}</span>
+                </div>
+            </div>
+
+            <div class="order-items-mini">
+                <h3>Items Ordered</h3>
+                {% for item in order['items'] %}
+                <div class="order-item-mini">
+                    <span>{{ item.product_name }} × {{ item.quantity }}</span>
+                    <span>₹{{ "%.2f"|format(item.subtotal) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="confirmation-actions">
+                <a href="{{ url_for('order.order_history') }}" class="btn btn-primary btn-lg">
+                    <i class="fa fa-list"></i> View My Orders
+                </a>
+                <a href="{{ url_for('product.home') }}" class="btn btn-outline btn-lg">
+                    <i class="fa fa-shopping-bag"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

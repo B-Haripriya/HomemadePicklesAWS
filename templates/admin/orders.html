@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Manage Orders – Admin{% endblock %}
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <div>
+                <h1 class="admin-page-title"><i class="fa fa-clipboard-list"></i> Manage Orders</h1>
+                <p class="admin-page-sub">View and update order statuses</p>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline">
+                <i class="fa fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+
+        {% if orders %}
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td><code class="order-id-code">{{ order.order_id[:8].upper() }}</code></td>
+                        <td>{{ order.user_id[:12] }}…</td>
+                        <td>{{ order['items'] | length }} item(s)</td>
+                        <td><strong>₹{{ "%.2f"|format(order.total_amount) }}</strong></td>
+                        <td>
+                            <span class="badge badge-{{ 'success' if order.payment_status == 'paid' else 'warning' }}">
+                                {{ order.payment_status | capitalize }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="order-status-badge status-{{ order.order_status }}">
+                                {{ order.order_status | capitalize }}
+                            </span>
+                        </td>
+                        <td class="date-cell">{{ order.created_at[:10] }}</td>
+                        <td>
+                            <form action="{{ url_for('admin.update_order', order_id=order.order_id) }}" method="POST"
+                                class="status-form">
+                                <select name="status" class="select-sm" onchange="this.form.submit()">
+                                    {% for s in ['confirmed','dispatched','delivered','cancelled'] %}
+                                    <option value="{{ s }}" {% if order.order_status==s %}selected{% endif %}>
+                                        {{ s | capitalize }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <h3>No Orders Yet</h3>
+            <p>Orders placed by customers will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

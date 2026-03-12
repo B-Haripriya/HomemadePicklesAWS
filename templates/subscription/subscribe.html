@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Subscribe – HomeMade Pickles & Snacks{% endblock %}
+{% block content %}
+<section class="section sub-section">
+    <div class="container">
+        <div class="auth-card auth-card-wide">
+            <div class="auth-icon">📦</div>
+            <h1 class="auth-title">Activate Your Subscription</h1>
+            <form action="{{ url_for('subscription.subscribe') }}" method="POST" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Choose Plan</label>
+                    <div class="plan-radio-group">
+                        {% for key, plan in plans.items() %}
+                        <label class="plan-radio-card {% if selected == key %}selected{% endif %}"
+                            id="planLabel_{{ key }}">
+                            <input type="radio" name="plan" value="{{ key }}" {% if selected==key %}checked{% endif %}
+                                onchange="document.querySelectorAll('.plan-radio-card').forEach(c=>c.classList.remove('selected')); this.closest('.plan-radio-card').classList.add('selected')" />
+                            <strong>{{ plan.name }}</strong>
+                            <span>₹{{ plan.price }} / {{ 'week' if key == 'weekly' else 'month' }}</span>
+                            <small>{{ plan.description }}</small>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="address" class="form-label">Delivery Address *</label>
+                    <textarea id="address" name="address" class="form-input" rows="3"
+                        placeholder="Enter full delivery address" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full btn-lg">
+                    <i class="fa fa-check"></i> Activate Subscription
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

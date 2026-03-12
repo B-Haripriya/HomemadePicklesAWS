@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Shop – HomeMade Pickles & Snacks{% endblock %}
+
+{% block content %}
+<section class="section shop-section">
+    <div class="container">
+        <div class="section-header">
+            <h1 class="section-title">
+                {% if selected_category %}{{ selected_category }}{% else %}All Products{% endif %}
+                <span class="product-count">({{ products|length }} items)</span>
+            </h1>
+        </div>
+
+        <div class="shop-layout">
+            <!-- Sidebar Filters -->
+            <aside class="shop-sidebar">
+                <div class="filter-card">
+                    <h3 class="filter-title"><i class="fa fa-filter"></i> Filters</h3>
+                    <div class="filter-group">
+                        <h4>Search</h4>
+                        <form action="{{ url_for('product.product_list') }}" method="GET" id="searchForm">
+                            <input type="text" name="q" value="{{ search_query }}" placeholder="Search products..."
+                                class="form-input search-input" id="searchInput" />
+                            {% if selected_category %}<input type="hidden" name="category"
+                                value="{{ selected_category }}" />{% endif %}
+                            <button type="submit" class="btn btn-sm btn-primary mt-sm">Search</button>
+                        </form>
+                    </div>
+                    <div class="filter-group">
+                        <h4>Category</h4>
+                        <ul class="cat-filter-list">
+                            <li>
+                                <a href="{{ url_for('product.product_list') }}"
+                                    class="cat-filter-link {% if not selected_category %}active{% endif %}">
+                                    All Products
+                                </a>
+                            </li>
+                            {% for cat in categories %}
+                            <li>
+                                <a href="{{ url_for('product.product_list', category=cat) }}"
+                                    class="cat-filter-link {% if selected_category == cat %}active{% endif %}">
+                                    {{ cat }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Product Grid -->
+            <div class="shop-main">
+                {% if products %}
+                <div class="products-grid" id="productGrid">
+                    {% for product in products %}
+                    <div class="product-card">
+                        <div class="product-image-wrap">
+                            {% if product.image_url %}
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-img"
+                                loading="lazy" />
+                            {% else %}
+                            <div class="product-img-placeholder">
+                                {{ '🥒' if product.category == 'Pickles' else '🍿' if product.category == 'Snacks' else
+                                '🎁' }}
+                            </div>
+                            {% endif %}
+                            <div class="product-overlay">
+                                <a href="{{ url_for('product.product_detail', product_id=product.product_id) }}"
+                                    class="btn btn-sm btn-white">Quick View</a>
+                            </div>
+                            {% if product.stock == 0 %}
+                            <span class="stock-badge out">Out of Stock</span>
+                            {% elif product.stock <= 5 %} <span class="stock-badge low">Only {{ product.stock }}
+                                Left!</span>
+                                {% endif %}
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">{{ product.category }}</span>
+                            <h3 class="product-name">
+                                <a href="{{ url_for('product.product_detail', product_id=product.product_id) }}">{{
+                                    product.name }}</a>
+                            </h3>
+                            {% if product.weight %}<p class="product-weight">{{ product.weight }}</p>{% endif %}
+                            <div class="product-footer">
+                                <span class="product-price">₹{{ "%.0f"|format(product.price) }}</span>
+                                {% if product.stock > 0 %}
+                                <form action="{{ url_for('cart.add_to_cart') }}" method="POST">
+                                    <input type="hidden" name="product_id" value="{{ product.product_id }}" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        <i class="fa fa-cart-plus"></i> Add
+                                    </button>
+                                </form>
+                                {% else %}
+                                <button class="btn btn-sm btn-disabled" disabled>Sold Out</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-emoji">🔍</div>
+                    <h3>No products found</h3>
+                    <p>Try adjusting your filters or search terms.</p>
+                    <a href="{{ url_for('product.product_list') }}" class="btn btn-primary">Browse All</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Register – HomeMade Pickles & Snacks{% endblock %}
+{% block content %}
+<section class="auth-section">
+    <div class="auth-card auth-card-wide">
+        <div class="auth-icon">🏡</div>
+        <h1 class="auth-title">Create Account</h1>
+        <p class="auth-sub">Join thousands of pickle lovers!</p>
+
+        <form action="{{ url_for('auth.register') }}" method="POST" class="auth-form" id="registerForm" novalidate>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name" class="form-label">Full Name *</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa fa-user input-icon"></i>
+                        <input type="text" id="name" name="name" class="form-input" placeholder="Priya Sharma"
+                            required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa fa-phone input-icon"></i>
+                        <input type="tel" id="phone" name="phone" class="form-input" placeholder="+91 98765 43210" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address *</label>
+                <div class="input-icon-wrap">
+                    <i class="fa fa-envelope input-icon"></i>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com"
+                        required />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password" class="form-label">Password *</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa fa-lock input-icon"></i>
+                        <input type="password" id="password" name="password" class="form-input"
+                            placeholder="Min 8 characters" required minlength="8" />
+                        <button type="button" class="toggle-pw" onclick="togglePw('password','eye1')"><i
+                                class="fa fa-eye" id="eye1"></i></button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label">Confirm Password *</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa fa-lock input-icon"></i>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-input"
+                            placeholder="Repeat password" required />
+                        <button type="button" class="toggle-pw" onclick="togglePw('confirm_password','eye2')"><i
+                                class="fa fa-eye" id="eye2"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pw-strength" id="pwStrength">
+                <div class="pw-bar">
+                    <div class="pw-fill" id="pwFill"></div>
+                </div>
+                <span id="pwLabel">Password strength</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-lg">
+                <i class="fa fa-user-plus"></i> Create Account
+            </button>
+        </form>
+
+        <p class="auth-switch">Already have an account? <a href="{{ url_for('auth.login') }}" class="auth-link">Log
+                in</a></p>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function togglePw(id, eyeId) {
+        const inp = document.getElementById(id);
+        const eye = document.getElementById(eyeId);
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+        eye.className = inp.type === 'text' ? 'fa fa-eye-slash' : 'fa fa-eye';
+    }
+
+    document.getElementById('password').addEventListener('input', function () {
+        const pw = this.value;
+        let score = 0;
+        if (pw.length >= 8) score++;
+        if (/[A-Z]/.test(pw)) score++;
+        if (/[0-9]/.test(pw)) score++;
+        if (/[^a-zA-Z0-9]/.test(pw)) score++;
+        const fill = document.getElementById('pwFill');
+        const label = document.getElementById('pwLabel');
+        const pct = (score / 4) * 100;
+        fill.style.width = pct + '%';
+        const colors = ['', '#ef4444', '#f59e0b', '#3b82f6', '#22c55e'];
+        const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+        fill.style.background = colors[score] || '#ef4444';
+        label.textContent = labels[score] || 'Too short';
+        label.style.color = colors[score] || '#ef4444';
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+        const pw = document.getElementById('password').value;
+        const cpw = document.getElementById('confirm_password').value;
+        if (pw !== cpw) {
+            e.preventDefault();
+            alert('Passwords do not match!');
+        }
+    });
+</script>
+{% endblock %}

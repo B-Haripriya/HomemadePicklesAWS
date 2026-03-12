@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="HomeMade Pickles & Snacks – Taste the Best. Authentic handcrafted pickles and snacks delivered to your door."/>
+  <title>{% block title %}HomeMade Pickles & Snacks – Taste the Best{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"/>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ══════════════════════ NAVBAR ══════════════════════════════════════════ -->
+<nav class="navbar" id="mainNav">
+  <div class="nav-container">
+    <a href="{{ url_for('product.home') }}" class="nav-brand">
+      <span class="brand-icon">🥒</span>
+      <span class="brand-text">HomeMade <span class="brand-accent">Pickles</span></span>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="{{ url_for('product.home') }}" class="nav-link {% if request.endpoint == 'product.home' %}active{% endif %}">Home</a></li>
+      <li class="dropdown">
+        <a href="{{ url_for('product.product_list') }}" class="nav-link">
+          Shop <i class="fa fa-chevron-down fa-xs"></i>
+        </a>
+        <ul class="dropdown-menu">
+          {% for cat in ['Pickles', 'Snacks', 'Combos', 'Gift Packs'] %}
+          <li><a href="{{ url_for('product.product_list', category=cat) }}">{{ cat }}</a></li>
+          {% endfor %}
+        </ul>
+      </li>
+      <li><a href="{{ url_for('subscription.plans') }}" class="nav-link {% if 'subscription' in request.endpoint %}active{% endif %}">Subscribe</a></li>
+
+      {% if 'user_id' in session %}
+        <li><a href="{{ url_for('order.order_history') }}" class="nav-link">My Orders</a></li>
+        {% if session.get('user_role') == 'admin' %}
+        <li><a href="{{ url_for('admin.dashboard') }}" class="nav-link admin-link"><i class="fa fa-shield-halved"></i> Admin</a></li>
+        {% endif %}
+        <li class="dropdown">
+          <a href="#" class="nav-link">
+            <i class="fa fa-user-circle"></i> {{ session['user_name'].split()[0] }}
+            <i class="fa fa-chevron-down fa-xs"></i>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="{{ url_for('auth.profile') }}"><i class="fa fa-user"></i> Profile</a></li>
+            <li><a href="{{ url_for('subscription.my_subscriptions') }}"><i class="fa fa-rotate"></i> My Subscriptions</a></li>
+            <li class="divider"></li>
+            <li><a href="{{ url_for('auth.logout') }}" class="logout-link"><i class="fa fa-sign-out-alt"></i> Logout</a></li>
+          </ul>
+        </li>
+      {% else %}
+        <li><a href="{{ url_for('auth.login') }}" class="nav-link">Login</a></li>
+        <li><a href="{{ url_for('auth.register') }}" class="btn-nav-register">Register</a></li>
+      {% endif %}
+
+      <li>
+        <a href="{{ url_for('cart.view_cart') }}" class="cart-icon" id="cartNavLink">
+          <i class="fa fa-shopping-cart"></i>
+          <span class="cart-badge" id="cartBadge">0</span>
+        </a>
+      </li>
+    </ul>
+
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ FLASH MESSAGES ═════════════════════════════════════ -->
+<div class="flash-container" id="flashContainer">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="flash flash-{{ category }}" role="alert">
+        <span>{{ message }}</span>
+        <button class="flash-close" onclick="this.parentElement.remove()">&#x2715;</button>
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+
+<!-- ═══════════════════ MAIN CONTENT ═══════════════════════════════════════ -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ═══════════════════ FOOTER ═════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-brand">
+      <h3>🥒 HomeMade Pickles & Snacks</h3>
+      <p>Authentic handcrafted flavours, made with love and tradition. Delivered fresh to your doorstep.</p>
+      <div class="social-links">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      </div>
+    </div>
+    <div class="footer-links">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="{{ url_for('product.product_list', category='Pickles') }}">Pickles</a></li>
+        <li><a href="{{ url_for('product.product_list', category='Snacks') }}">Snacks</a></li>
+        <li><a href="{{ url_for('product.product_list', category='Combos') }}">Combos</a></li>
+        <li><a href="{{ url_for('product.product_list', category='Gift Packs') }}">Gift Packs</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Account</h4>
+      <ul>
+        <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+        <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+        <li><a href="{{ url_for('subscription.plans') }}">Subscribe</a></li>
+        <li><a href="{{ url_for('order.order_history') }}">My Orders</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h4>Contact</h4>
+      <ul>
+        <li><i class="fa fa-envelope"></i> hello@homepickles.in</li>
+        <li><i class="fa fa-phone"></i> +91 98765 43210</li>
+        <li><i class="fa fa-map-marker-alt"></i> Pune, Maharashtra</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 HomeMade Pickles & Snacks. All rights reserved. | Built with ❤️ &amp; boto3</p>
+  </div>
+</footer>
+
+<!-- ═══════════════════ SCRIPTS ════════════════════════════════════════════ -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

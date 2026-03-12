@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} – HomeMade Pickles & Snacks{% endblock %}
+
+{% block content %}
+<section class="section product-detail-section">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{{ url_for('product.home') }}">Home</a>
+            <i class="fa fa-chevron-right fa-xs"></i>
+            <a href="{{ url_for('product.product_list') }}">Shop</a>
+            <i class="fa fa-chevron-right fa-xs"></i>
+            <a href="{{ url_for('product.product_list', category=product.category) }}">{{ product.category }}</a>
+            <i class="fa fa-chevron-right fa-xs"></i>
+            <span>{{ product.name }}</span>
+        </nav>
+
+        <div class="pd-layout">
+            <!-- Image -->
+            <div class="pd-image-col">
+                <div class="pd-image-card">
+                    {% if product.image_url %}
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="pd-img" />
+                    {% else %}
+                    <div class="pd-img-placeholder">
+                        {{ '🥒' if product.category == 'Pickles' else '🍿' if product.category == 'Snacks' else '🎁' }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Details -->
+            <div class="pd-info-col">
+                <span class="product-category-tag">{{ product.category }}</span>
+                <h1 class="pd-title">{{ product.name }}</h1>
+                <div class="pd-meta">
+                    {% if product.weight %}<span class="pd-badge"><i class="fa fa-weight-hanging"></i> {{ product.weight
+                        }}</span>{% endif %}
+                    {% if product.stock > 0 %}
+                    <span class="pd-badge in-stock"><i class="fa fa-check-circle"></i>
+                        {% if product.stock <= 5 %}Only {{ product.stock }} left!{% else %}In Stock{% endif %} </span>
+                            {% else %}
+                            <span class="pd-badge out-stock"><i class="fa fa-times-circle"></i> Out of Stock</span>
+                            {% endif %}
+                </div>
+
+                <div class="pd-price">
+                    <span class="price-tag">₹{{ "%.0f"|format(product.price) }}</span>
+                    <span class="price-note">Incl. all taxes</span>
+                </div>
+
+                <p class="pd-description">{{ product.description }}</p>
+
+                {% if product.stock > 0 %}
+                <form action="{{ url_for('cart.add_to_cart') }}" method="POST" class="pd-cart-form">
+                    <input type="hidden" name="product_id" value="{{ product.product_id }}" />
+                    <div class="qty-selector">
+                        <label for="qty">Qty:</label>
+                        <div class="qty-control">
+                            <button type="button" class="qty-btn" onclick="changeQty(-1)">−</button>
+                            <input type="number" id="qty" name="quantity" value="1" min="1" max="{{ product.stock }}"
+                                class="qty-input" />
+                            <button type="button" class="qty-btn" onclick="changeQty(1)">+</button>
+                        </div>
+                    </div>
+                    <div class="pd-actions">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fa fa-cart-plus"></i> Add to Cart
+                        </button>
+                        <a href="{{ url_for('cart.view_cart') }}" class="btn btn-outline btn-lg">
+                            <i class="fa fa-shopping-cart"></i> View Cart
+                        </a>
+                    </div>
+                </form>
+                {% else %}
+                <div class="pd-actions">
+                    <button class="btn btn-disabled btn-lg" disabled>Currently Out of Stock</button>
+                </div>
+                {% endif %}
+
+                <div class="pd-features">
+                    <div class="pd-feature-item"><i class="fa fa-leaf"></i> No Preservatives</div>
+                    <div class="pd-feature-item"><i class="fa fa-truck"></i> Free Delivery ₹499+</div>
+                    <div class="pd-feature-item"><i class="fa fa-award"></i> Quality Guaranteed</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        {% if related %}
+        <div class="related-section">
+            <h2 class="section-title">You May Also Like</h2>
+            <div class="products-grid">
+                {% for rp in related %}
+                <div class="product-card">
+                    <div class="product-image-wrap">
+                        <div class="product-img-placeholder">
+                            {{ '🥒' if rp.category == 'Pickles' else '🍿' if rp.category == 'Snacks' else '🎁' }}
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-category">{{ rp.category }}</span>
+                        <h3 class="product-name">
+                            <a href="{{ url_for('product.product_detail', product_id=rp.product_id) }}">{{ rp.name
+                                }}</a>
+                        </h3>
+                        <div class="product-footer">
+                            <span class="product-price">₹{{ "%.0f"|format(rp.price) }}</span>
+                            <a href="{{ url_for('product.product_detail', product_id=rp.product_id) }}"
+                                class="btn btn-sm btn-outline">View</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+    function changeQty(delta) {
+        const input = document.getElementById('qty');
+        const max = parseInt(input.max);
+        const newVal = Math.max(1, Math.min(max, parseInt(input.value) + delta));
+        input.value = newVal;
+    }
+</script>
+{% endblock %}
+{% endblock %}

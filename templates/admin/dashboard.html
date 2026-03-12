@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard – HomeMade Pickles & Snacks{% endblock %}
+
+{% block content %}
+<section class="section admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <h1 class="admin-title"><i class="fa fa-shield-halved"></i> Admin Dashboard</h1>
+            <span class="admin-badge">🛡️ Admin Panel</span>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card stat-orders">
+                <div class="stat-icon"><i class="fa fa-shopping-bag"></i></div>
+                <div class="stat-body">
+                    <span class="stat-number">{{ stats.total_orders }}</span>
+                    <span class="stat-label">Total Orders</span>
+                </div>
+            </div>
+            <div class="stat-card stat-revenue">
+                <div class="stat-icon"><i class="fa fa-indian-rupee-sign"></i></div>
+                <div class="stat-body">
+                    <span class="stat-number">₹{{ "%.0f"|format(stats.total_revenue) }}</span>
+                    <span class="stat-label">Total Revenue</span>
+                </div>
+            </div>
+            <div class="stat-card stat-products">
+                <div class="stat-icon"><i class="fa fa-box"></i></div>
+                <div class="stat-body">
+                    <span class="stat-number">{{ total_products }}</span>
+                    <span class="stat-label">Products</span>
+                </div>
+            </div>
+            <div class="stat-card stat-users">
+                <div class="stat-icon"><i class="fa fa-users"></i></div>
+                <div class="stat-body">
+                    <span class="stat-number">{{ total_users }}</span>
+                    <span class="stat-label">Registered Users</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Status Breakdown -->
+        <div class="admin-cards-row">
+            <div class="admin-card">
+                <h2 class="admin-card-title">Order Status Breakdown</h2>
+                <div class="status-list">
+                    {% for status, count in stats.status_counts.items() %}
+                    <div class="status-row">
+                        <span class="order-status-badge status-{{ status }}">{{ status.title() }}</span>
+                        <div class="status-bar-wrap">
+                            <div class="status-bar"
+                                style="width: {{ (count / stats.total_orders * 100)|int if stats.total_orders > 0 else 0 }}%">
+                            </div>
+                        </div>
+                        <span class="status-count">{{ count }}</span>
+                    </div>
+                    {% else %}
+                    <p class="empty-msg">No orders yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <h2 class="admin-card-title">Revenue (Last 7 Days)</h2>
+                <div class="revenue-chart">
+                    {% for date, rev in stats.daily_revenue.items() %}
+                    <div class="rev-bar-wrap">
+                        <div class="rev-bar"
+                            style="height: {{ [rev / [stats.daily_revenue.values()|max, 1]|max * 120, 4]|max }}px"
+                            title="{{ date }}: ₹{{ '%.0f'|format(rev) }}"></div>
+                        <span class="rev-date">{{ date[-5:] }}</span>
+                    </div>
+                    {% else %}
+                    <p class="empty-msg">No sales data yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Quick Links -->
+        <div class="admin-quick-links">
+            <a href="{{ url_for('admin.manage_products') }}" class="admin-link-card">
+                <i class="fa fa-box"></i>
+                <strong>Products</strong>
+                <span>Add, edit, delete products</span>
+            </a>
+            <a href="{{ url_for('admin.manage_orders') }}" class="admin-link-card">
+                <i class="fa fa-shopping-bag"></i>
+                <strong>Orders</strong>
+                <span>View and manage orders</span>
+            </a>
+            <a href="{{ url_for('admin.manage_users') }}" class="admin-link-card">
+                <i class="fa fa-users"></i>
+                <strong>Users</strong>
+                <span>View all customers</span>
+            </a>
+            <a href="{{ url_for('admin.manage_subscriptions') }}" class="admin-link-card">
+                <i class="fa fa-rotate"></i>
+                <strong>Subscriptions</strong>
+                <span>Manage delivery plans</span>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}My Orders – HomeMade Pickles & Snacks{% endblock %}
+{% block content %}
+<section class="section orders-section">
+    <div class="container">
+        <h1 class="section-title"><i class="fa fa-list-alt"></i> My Orders</h1>
+
+        {% if orders %}
+        <div class="orders-list">
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-card-header">
+                    <div class="order-id-block">
+                        <span class="order-label">Order</span>
+                        <span class="order-id mono">#{{ order.order_id[:8].upper() }}</span>
+                    </div>
+                    <div class="order-meta">
+                        <span class="order-date"><i class="fa fa-calendar"></i> {{ order.created_at[:10] }}</span>
+                        <span class="order-status-badge status-{{ order.order_status }}">{{ order.order_status.title()
+                            }}</span>
+                    </div>
+                </div>
+                <div class="order-card-body">
+                    <div class="order-items-preview">
+                        {% for item in order['items'][:3] %}
+                        <span class="order-item-chip">{{ item.product_name }} × {{ item.quantity }}</span>
+                        {% endfor %}
+                        {% if order['items']|length > 3 %}
+                        <span class="order-item-chip more">+{{ order['items']|length - 3 }} more</span>
+                        {% endif %}
+                    </div>
+                    <div class="order-total-block">
+                        <span class="order-total">₹{{ "%.2f"|format(order.total_amount) }}</span>
+                        <a href="{{ url_for('order.order_detail', order_id=order.order_id) }}"
+                            class="btn btn-sm btn-outline">
+                            View Details <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-emoji">📦</div>
+            <h2>No orders yet!</h2>
+            <p>You haven't placed any orders. Start shopping for delicious pickles and snacks!</p>
+            <a href="{{ url_for('product.product_list') }}" class="btn btn-primary btn-lg">Shop Now</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

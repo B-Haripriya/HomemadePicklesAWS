@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Manage Subscriptions – Admin{% endblock %}
+{% block content %}
+<section class="admin-section">
+    <div class="container">
+        <div class="admin-header">
+            <div>
+                <h1 class="admin-page-title"><i class="fa fa-rotate"></i> Manage Subscriptions</h1>
+                <p class="admin-page-sub">{{ subscriptions | length }} total subscription(s)</p>
+            </div>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline">
+                <i class="fa fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+
+        {% if subscriptions %}
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Plan</th>
+                        <th>Price</th>
+                        <th>Address</th>
+                        <th>Status</th>
+                        <th>Next Delivery</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in subscriptions %}
+                    <tr>
+                        <td><code class="order-id-code">{{ sub.SubscriptionID[:8].upper() }}</code></td>
+                        <td>{{ sub.UserID[:12] }}…</td>
+                        <td>
+                            <span class="badge badge-primary">{{ sub.plan_key | capitalize }}</span>
+                        </td>
+                        <td>₹{{ sub.price }}</td>
+                        <td class="addr-cell">{{ sub.address[:30] }}{% if sub.address|length > 30 %}…{% endif %}</td>
+                        <td>
+                            <span class="order-status-badge status-{{ sub.status }}">
+                                {{ sub.status | capitalize }}
+                            </span>
+                        </td>
+                        <td class="date-cell">{{ sub.next_delivery[:10] if sub.next_delivery else '–' }}</td>
+                        <td>
+                            <form action="{{ url_for('admin.update_sub_status', sub_id=sub.SubscriptionID) }}"
+                                method="POST" class="status-form">
+                                <select name="status" class="select-sm" onchange="this.form.submit()">
+                                    {% for s in ['active','paused','cancelled'] %}
+                                    <option value="{{ s }}" {% if sub.status==s %}selected{% endif %}>
+                                        {{ s | capitalize }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🔄</div>
+            <h3>No Subscriptions Yet</h3>
+            <p>Customer subscriptions will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

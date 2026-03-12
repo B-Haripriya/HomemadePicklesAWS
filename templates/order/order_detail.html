@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.order_id[:8].upper() }} – HomeMade Pickles & Snacks{% endblock %}
+{% block content %}
+<section class="section orders-section">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{{ url_for('product.home') }}">Home</a>
+            <i class="fa fa-chevron-right fa-xs"></i>
+            <a href="{{ url_for('order.order_history') }}">My Orders</a>
+            <i class="fa fa-chevron-right fa-xs"></i>
+            <span>#{{ order.order_id[:8].upper() }}</span>
+        </nav>
+
+        <div class="order-detail-layout">
+            <div class="order-detail-col">
+                <div class="checkout-card">
+                    <h2 class="checkout-card-title">Order #{{ order.order_id[:8].upper() }}</h2>
+                    <div class="conf-detail-row">
+                        <span class="conf-label">Placed on</span>
+                        <span class="conf-value">{{ order.created_at[:10] }}</span>
+                    </div>
+                    <div class="conf-detail-row">
+                        <span class="conf-label">Status</span>
+                        <span class="conf-value order-status-badge status-{{ order.order_status }}">{{
+                            order.order_status.title() }}</span>
+                    </div>
+                    <div class="conf-detail-row">
+                        <span class="conf-label">Payment</span>
+                        <span class="conf-value">{{ order.payment_method }} – {{ order.payment_status.title() }}</span>
+                    </div>
+                    <div class="conf-detail-row">
+                        <span class="conf-label">Deliver To</span>
+                        <span class="conf-value">{{ order.address }}</span>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="checkout-card">
+                    <h2 class="checkout-card-title">Items</h2>
+                    <table class="order-items-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Unit Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order['items'] %}
+                            <tr>
+                                <td>{{ item.product_name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>₹{{ "%.2f"|format(item.unit_price) }}</td>
+                                <td>₹{{ "%.2f"|format(item.subtotal) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3"><strong>Total</strong></td>
+                                <td><strong>₹{{ "%.2f"|format(order.total_amount) }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-lg">
+            <a href="{{ url_for('order.order_history') }}" class="btn btn-outline">
+                <i class="fa fa-arrow-left"></i> Back to Orders
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

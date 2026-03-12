@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Subscription Plans – HomeMade Pickles & Snacks{% endblock %}
+{% block content %}
+<section class="section sub-section">
+    <div class="container">
+        <div class="section-header centered">
+            <span class="section-badge">Subscribe & Save</span>
+            <h1 class="section-title">Delivery Plans</h1>
+            <p class="section-desc">Get your favourite pickles and snacks on auto-pilot. Cancel anytime.</p>
+        </div>
+
+        <div class="plans-grid">
+            {% for key, plan in plans.items() %}
+            <div class="plan-card {% if key == 'monthly' %}plan-popular{% endif %}">
+                {% if key == 'monthly' %}
+                <div class="plan-popular-badge">🔥 Most Popular</div>
+                {% endif %}
+                <div class="plan-icon">{{ '📅' if key == 'weekly' else '🗓️' }}</div>
+                <h2 class="plan-name">{{ plan.name }}</h2>
+                <div class="plan-price">
+                    <span class="plan-amount">₹{{ plan.price }}</span>
+                    <span class="plan-period">/ {{ 'week' if key == 'weekly' else 'month' }}</span>
+                </div>
+                <p class="plan-desc">{{ plan.description }}</p>
+                <ul class="plan-features">
+                    <li><i class="fa fa-check"></i> Delivery every {{ plan.delivery_days }} days</li>
+                    <li><i class="fa fa-check"></i> Curated seasonal selection</li>
+                    <li><i class="fa fa-check"></i> Priority customer support</li>
+                    <li><i class="fa fa-check"></i> Free delivery included</li>
+                    {% if key == 'monthly' %}
+                    <li><i class="fa fa-check"></i> Bonus snack pack every month</li>
+                    <li><i class="fa fa-check"></i> 20% savings vs weekly</li>
+                    {% endif %}
+                </ul>
+                <a href="{{ url_for('subscription.subscribe') }}?plan={{ key }}" class="btn btn-full btn-lg
+          {% if key == 'monthly' %}btn-primary{% else %}btn-outline{% endif %}">
+                    Subscribe – {{ plan.name }}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="sub-faq">
+            <h2>Frequently Asked Questions</h2>
+            {% for q, a in [
+            ('Can I cancel anytime?', 'Yes! You can pause or cancel your subscription from your profile page at any
+            time.'),
+            ('What products will I receive?', 'Each delivery is a seasonal curated hamper of our best-selling pickles
+            and snacks.'),
+            ('When will I be charged?', 'Payment is simulated in this demo. In production, billing is on subscription
+            signup.'),
+            ('Can I change my delivery address?', 'Contact us at hello@homepickles.in to update your address.'),
+            ] %}
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">
+                    {{ q }} <i class="fa fa-plus faq-icon"></i>
+                </button>
+                <div class="faq-a">{{ a }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleFaq(btn) {
+        const ans = btn.nextElementSibling;
+        const icon = btn.querySelector('.faq-icon');
+        const open = ans.style.maxHeight;
+        document.querySelectorAll('.faq-a').forEach(a => a.style.maxHeight = '');
+        document.querySelectorAll('.faq-icon').forEach(i => { i.className = 'fa fa-plus faq-icon'; });
+        if (!open) {
+            ans.style.maxHeight = ans.scrollHeight + 'px';
+            icon.className = 'fa fa-minus faq-icon';
+        }
+    }
+</script>
+{% endblock %}

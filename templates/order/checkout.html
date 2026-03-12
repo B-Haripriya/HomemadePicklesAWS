@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Checkout – HomeMade Pickles & Snacks{% endblock %}
+{% block content %}
+<section class="section checkout-section">
+    <div class="container">
+        <h1 class="section-title"><i class="fa fa-lock"></i> Secure Checkout</h1>
+
+        <div class="checkout-layout">
+            <!-- Form -->
+            <div class="checkout-form-col">
+                <form action="{{ url_for('order.checkout') }}" method="POST" id="checkoutForm">
+                    <!-- Delivery Address -->
+                    <div class="checkout-card">
+                        <h2 class="checkout-card-title"><i class="fa fa-map-marker-alt"></i> Delivery Address</h2>
+                        <div class="form-group">
+                            <label for="address" class="form-label">Full Delivery Address *</label>
+                            <textarea id="address" name="address" class="form-input" rows="4"
+                                placeholder="Enter your full address including street, city, state and PIN code"
+                                required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="checkout-card">
+                        <h2 class="checkout-card-title"><i class="fa fa-credit-card"></i> Payment Method</h2>
+                        <div class="payment-options">
+                            <label class="payment-option active" id="label_cod">
+                                <input type="radio" name="payment_method" value="COD" checked
+                                    onchange="selectPayment(this)" />
+                                <div class="payment-icon">💵</div>
+                                <div>
+                                    <strong>Cash on Delivery</strong>
+                                    <p>Pay when your order arrives</p>
+                                </div>
+                            </label>
+                            <label class="payment-option" id="label_upi">
+                                <input type="radio" name="payment_method" value="UPI" onchange="selectPayment(this)" />
+                                <div class="payment-icon">📱</div>
+                                <div>
+                                    <strong>UPI / Wallet</strong>
+                                    <p>Pay via PhonePe, GPay, Paytm</p>
+                                </div>
+                            </label>
+                            <label class="payment-option" id="label_card">
+                                <input type="radio" name="payment_method" value="Card" onchange="selectPayment(this)" />
+                                <div class="payment-icon">💳</div>
+                                <div>
+                                    <strong>Credit / Debit Card</strong>
+                                    <p>Visa, Mastercard, RuPay</p>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="payment-simulation-note">
+                            <i class="fa fa-info-circle"></i>
+                            <span><strong>Simulation Mode:</strong> Payments are simulated. No real charges will be
+                                made.</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full btn-lg" id="placeOrderBtn">
+                        <i class="fa fa-check-circle"></i> Place Order – ₹{{ "%.0f"|format(total) }}
+                    </button>
+                </form>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="checkout-summary-col">
+                <div class="cart-summary-card">
+                    <h2 class="summary-title">Your Order</h2>
+                    {% for item in cart %}
+                    <div class="checkout-item">
+                        <span class="checkout-item-name">{{ item.name }} × {{ item.quantity }}</span>
+                        <span class="checkout-item-price">₹{{ "%.0f"|format(item.price * item.quantity) }}</span>
+                    </div>
+                    {% endfor %}
+                    <div class="summary-divider"></div>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>₹{{ "%.0f"|format(total) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery</span>
+                        <span>{% if total >= 499 %}FREE{% else %}₹50{% endif %}</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row summary-total">
+                        <strong>Grand Total</strong>
+                        <strong>₹{{ "%.0f"|format(total if total >= 499 else total + 50) }}</strong>
+                    </div>
+                </div>
+                <div class="trust-card">
+                    <div class="trust-item-sm"><i class="fa fa-shield-halved"></i> 100% Secure Payments</div>
+                    <div class="trust-item-sm"><i class="fa fa-leaf"></i> Natural Ingredients</div>
+                    <div class="trust-item-sm"><i class="fa fa-truck"></i> 3–5 Day Delivery</div>
+                    <div class="trust-item-sm"><i class="fa fa-rotate-left"></i> Easy Returns</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function selectPayment(radio) {
+        document.querySelectorAll('.payment-option').forEach(l => l.classList.remove('active'));
+        radio.closest('.payment-option').classList.add('active');
+    }
+    document.getElementById('checkoutForm').addEventListener('submit', function () {
+        const btn = document.getElementById('placeOrderBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Placing Order...';
+    });
+</script>
+{% endblock %}

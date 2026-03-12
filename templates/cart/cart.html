@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Shopping Cart – HomeMade Pickles & Snacks{% endblock %}
+{% block content %}
+<section class="section cart-section">
+    <div class="container">
+        <h1 class="section-title"><i class="fa fa-shopping-cart"></i> Shopping Cart</h1>
+
+        {% if cart %}
+        <div class="cart-layout">
+            <!-- Cart Items -->
+            <div class="cart-items-col">
+                {% for item in cart %}
+                <div class="cart-item" id="cartItem_{{ item.product_id }}">
+                    <div class="cart-item-image">
+                        {{ '🥒' if item.category == 'Pickles' else '🍿' if item.category == 'Snacks' else '🎁' }}
+                    </div>
+                    <div class="cart-item-info">
+                        <h3 class="cart-item-name">{{ item.name }}</h3>
+                        <span class="cart-item-cat">{{ item.category }}</span>
+                        <span class="cart-item-price">₹{{ "%.0f"|format(item.price) }} each</span>
+                    </div>
+                    <div class="cart-item-actions">
+                        <form action="{{ url_for('cart.update_cart') }}" method="POST" class="qty-form">
+                            <input type="hidden" name="product_id" value="{{ item.product_id }}" />
+                            <div class="qty-control">
+                                <button type="submit" name="quantity" value="{{ item.quantity - 1 }}"
+                                    class="qty-btn">−</button>
+                                <span class="qty-display">{{ item.quantity }}</span>
+                                <button type="submit" name="quantity" value="{{ item.quantity + 1 }}"
+                                    class="qty-btn">+</button>
+                            </div>
+                        </form>
+                        <span class="cart-item-subtotal">₹{{ "%.0f"|format(item.price * item.quantity) }}</span>
+                        <a href="{{ url_for('cart.remove_from_cart', product_id=item.product_id) }}" class="cart-remove"
+                            title="Remove">
+                            <i class="fa fa-trash"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="cart-item-footer">
+                    <a href="{{ url_for('cart.clear_cart') }}" class="btn btn-sm btn-danger-outline"
+                        onclick="return confirm('Clear all items?')">
+                        <i class="fa fa-trash"></i> Clear Cart
+                    </a>
+                    <a href="{{ url_for('product.product_list') }}" class="btn btn-sm btn-outline">
+                        <i class="fa fa-arrow-left"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="cart-summary-col">
+                <div class="cart-summary-card">
+                    <h2 class="summary-title">Order Summary</h2>
+                    <div class="summary-row">
+                        <span>Subtotal ({{ cart|sum(attribute='quantity') }} items)</span>
+                        <span>₹{{ "%.0f"|format(total) }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery</span>
+                        <span class="free-delivery">{% if total >= 499 %}FREE{% else %}₹50{% endif %}</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row summary-total">
+                        <span><strong>Total</strong></span>
+                        <span><strong>₹{{ "%.0f"|format(total if total >= 499 else total + 50) }}</strong></span>
+                    </div>
+                    {% if total < 499 %} <p class="delivery-note">
+                        <i class="fa fa-info-circle"></i>
+                        Add ₹{{ "%.0f"|format(499 - total) }} more for FREE delivery!
+                        </p>
+                        {% else %}
+                        <p class="delivery-note free-note"><i class="fa fa-check"></i> You've unlocked FREE delivery! 🎉
+                        </p>
+                        {% endif %}
+                        <a href="{{ url_for('order.checkout') }}" class="btn btn-primary btn-full btn-lg">
+                            <i class="fa fa-lock"></i> Proceed to Checkout
+                        </a>
+                        <div class="security-badges">
+                            <span><i class="fa fa-shield-halved"></i> Secure</span>
+                            <span><i class="fa fa-credit-card"></i> Encrypted</span>
+                            <span><i class="fa fa-truck"></i> Fast Delivery</span>
+                        </div>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-emoji">🛒</div>
+            <h2>Your cart is empty!</h2>
+            <p>Looks like you haven't added anything yet. Browse our delicious range of pickles and snacks.</p>
+            <a href="{{ url_for('product.product_list') }}" class="btn btn-primary btn-lg">Start Shopping</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
