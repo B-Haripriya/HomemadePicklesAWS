@@ -125,3 +125,20 @@ def get_all_users():
     except ClientError as e:
         logger.error(f"get_all_users error: {e}")
         return []
+def update_user_subscription(user_id, subscription_id):
+    """
+    Link a subscription to a user in DynamoDB
+    """
+    try:
+        USERS_TABLE.update_item(
+            Key={"user_id": user_id},
+            UpdateExpression="SET subscription_id = :s",
+            ExpressionAttributeValues={
+                ":s": subscription_id
+            }
+        )
+        return True
+
+    except ClientError as e:
+        logger.error(f"update_user_subscription error: {e}")
+        return False
