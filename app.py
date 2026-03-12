@@ -17,7 +17,6 @@ import config.settings as settings
 def create_app():
     app = Flask(__name__)
 
-```
 # ── Security Configuration ────────────────────────────────────────────────
 app.secret_key = settings.SECRET_KEY
 app.config['SESSION_COOKIE_SECURE'] = settings.SESSION_COOKIE_SECURE
@@ -61,13 +60,13 @@ app.register_blueprint(subscription_bp)
 
 logger.info("HomeMade Pickles & Snacks app started successfully.")
 return app
-```
+
 
 # Create Flask app
 
 app = create_app()
 
-if **name** == '**main**':
+if __name__ == '__main__':
 app.run(
 host='0.0.0.0',
 port=5000,
