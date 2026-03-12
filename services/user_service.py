@@ -39,12 +39,12 @@ def _verify_password(stored_hash: str, password: str) -> bool:
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
-def _clean(doc: dict | None) -> dict | None:
-    """Remove MongoDB's internal _id before returning a document."""
+from typing import Optional
+
+def _clean(doc: Optional[dict]) -> Optional[dict]:
     if doc:
         doc.pop('_id', None)
     return doc
-
 
 # ── CRUD Operations ────────────────────────────────────────────────────────────
 
