@@ -17,7 +17,15 @@ SESSION_COOKIE_SECURE = os.environ.get("FLASK_ENV", "development") == "productio
 DEBUG = os.environ.get("FLASK_DEBUG", "True").lower() == "true"
 
 # ── AWS Configuration ────────────────────────────────────
+#AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
+# AWS Configuration
 AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
+
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "")
+
+# DynamoDB endpoint (for local DynamoDB only)
+DYNAMODB_ENDPOINT = None
 
 # Optional AWS credentials (not required if using EC2 IAM role)
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "")
