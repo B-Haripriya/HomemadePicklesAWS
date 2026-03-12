@@ -10,8 +10,6 @@ import hmac
 import os
 import logging
 from datetime import datetime
-from pymongo.errors import DuplicateKeyError, PyMongoError
-from config.mongodb_config import get_collection
 import config.settings as settings
 
 logger = logging.getLogger(__name__)
