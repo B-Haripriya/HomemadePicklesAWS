@@ -59,7 +59,7 @@ app.register_blueprint(admin_bp, url_prefix='/admin')
 app.register_blueprint(subscription_bp)
 
 logger.info("HomeMade Pickles & Snacks app started successfully.")
-  return app
+ return app
 
 
 # Create Flask app
