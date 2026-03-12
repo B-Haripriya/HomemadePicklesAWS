@@ -160,3 +160,16 @@ def deduct_stock_for_order(items):
         update_stock(item["product_id"], -int(item["quantity"]))
 
     return True
+def get_recommendations(order_history=None, limit=4):
+    """
+    Simple recommendation system.
+    Returns latest products when order history is not available.
+    """
+    products = get_all_products()
+
+    products.sort(
+        key=lambda x: x.get("created_at", ""),
+        reverse=True
+    )
+
+    return products[:limit]
