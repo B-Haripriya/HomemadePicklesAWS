@@ -113,3 +113,15 @@ def update_user_orders(user_id, order_id):
 
     except ClientError as e:
         logger.error(e)
+def get_all_users():
+    """
+    Admin: fetch all users from DynamoDB
+    """
+    try:
+        response = USERS_TABLE.scan()
+        users = response.get("Items", [])
+        return users
+
+    except ClientError as e:
+        logger.error(f"get_all_users error: {e}")
+        return []
