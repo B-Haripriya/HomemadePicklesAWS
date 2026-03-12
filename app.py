@@ -15,7 +15,7 @@ from routes.subscription_routes import subscription_bp
 import config.settings as settings
 
 def create_app():
-    app = Flask(**name**)
+    app = Flask(__name__)
 
 ```
 # ── Security Configuration ────────────────────────────────────────────────
