@@ -59,3 +59,13 @@ CATEGORIES = ['Pickles', 'Snacks', 'Combos', 'Gift Packs']
 
 # ── Currency ───────────────────────────────────────────────────────────────────
 CURRENCY_SYMBOL = '₹'
+# AWS region
+AWS_REGION = "us-east-1"
+
+# DynamoDB tables
+USERS_TABLE = "users"
+PRODUCTS_TABLE = "products"
+ORDERS_TABLE = "orders"
+SUBSCRIPTIONS_TABLE = "subscriptions"
+CART_TABLE = "cart"
+REVIEWS_TABLE = "reviews"
