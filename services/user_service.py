@@ -84,7 +84,7 @@ def register_user(name: str, email: str, password: str, phone: str = '') -> dict
         return {'success': False, 'error': 'Database error.'}
 
 
-def login_user(email: str, password: str) -> dict | None:
+def login_user(email: str, password: str) -> Optional[dict]:
     """Validate credentials. Returns user data dict or None."""
     try:
         user = get_collection(COL).find_one({'email': email.lower().strip()})
@@ -98,7 +98,7 @@ def login_user(email: str, password: str) -> dict | None:
         return None
 
 
-def get_user_by_id(user_id: str) -> dict | None:
+def get_user_by_id(user_id: str) -> Optional[dict]:
     """Fetch a user by user_id."""
     try:
         return _clean(get_collection(COL).find_one({'user_id': user_id}))
