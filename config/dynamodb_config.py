@@ -5,39 +5,57 @@ DynamoDB connection and table initialization for HomeMade Pickles & Snacks.
 
 import boto3
 import logging
-from botocore.exceptions import ClientError, NoCredentialsError
+from botocore.exceptions import ClientError
 import config.settings as settings
 
 logger = logging.getLogger(__name__)
 
+# ── DynamoDB Resource ─────────────────────────────────────
+
 def get_dynamodb_resource():
-    """Return a boto3 DynamoDB resource. Supports local endpoint for dev."""
-    kwargs = dict(
-        region_name=settings.AWS_REGION,
-        # Always pass credentials; fall back to dummy values so boto3 never
-        # raises NoCredentialsError – real AWS will return an auth error
-        # (ClientError) which service functions already handle gracefully.
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID or 'local',
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY or 'local',
-    )
-    if settings.DYNAMODB_ENDPOINT:
-        kwargs['endpoint_url'] = settings.DYNAMODB_ENDPOINT
-    return boto3.resource('dynamodb', **kwargs)
+    """
+    Create DynamoDB resource.
+    When running on EC2 with IAM role, boto3 automatically
+    retrieves credentials from the instance metadata service.
+    """
+    try:
+        if settings.DYNAMODB_ENDPOINT:
+            return boto3.resource(
+                "dynamodb",
+                region_name=settings.AWS_REGION,
+                endpoint_url=settings.DYNAMODB_ENDPOINT
+            )
+        else:
+            return boto3.resource(
+                "dynamodb",
+                region_name=settings.AWS_REGION
+            )
+    except ClientError as e:
+        logger.error(f"DynamoDB connection error: {e}")
+        raise
 
 
 def get_dynamodb_client():
     """Return a low-level DynamoDB client."""
-    kwargs = dict(
-        region_name=settings.AWS_REGION,
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID or 'local',
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY or 'local',
-    )
-    if settings.DYNAMODB_ENDPOINT:
-        kwargs['endpoint_url'] = settings.DYNAMODB_ENDPOINT
-    return boto3.client('dynamodb', **kwargs)
+    try:
+        if settings.DYNAMODB_ENDPOINT:
+            return boto3.client(
+                "dynamodb",
+                region_name=settings.AWS_REGION,
+                endpoint_url=settings.DYNAMODB_ENDPOINT
+            )
+        else:
+            return boto3.client(
+                "dynamodb",
+                region_name=settings.AWS_REGION
+            )
+    except ClientError as e:
+        logger.error(f"DynamoDB client error: {e}")
+        raise
 
 
-# ── Shared resource singleton ──────────────────────────────────────────────────
+# ── Shared resource singleton ─────────────────────────────
+
 _dynamodb = None
 
 def db():
@@ -53,48 +71,57 @@ def get_table(table_name: str):
     return db().Table(table_name)
 
 
-# ── Table Schemas ──────────────────────────────────────────────────────────────
+# ── Table Schemas ─────────────────────────────────────────
+
 TABLE_DEFINITIONS = [
     {
-        'TableName': settings.USERS_TABLE,
-        'KeySchema': [{'AttributeName': 'UserID', 'KeyType': 'HASH'}],
-        'AttributeDefinitions': [{'AttributeName': 'UserID', 'AttributeType': 'S'}],
-        'BillingMode': 'PAY_PER_REQUEST',
+        "TableName": settings.USERS_TABLE,
+        "KeySchema": [{"AttributeName": "user_id", "KeyType": "HASH"}],
+        "AttributeDefinitions": [{"AttributeName": "user_id", "AttributeType": "S"}],
+        "BillingMode": "PAY_PER_REQUEST",
     },
     {
-        'TableName': settings.PRODUCTS_TABLE,
-        'KeySchema': [{'AttributeName': 'ProductID', 'KeyType': 'HASH'}],
-        'AttributeDefinitions': [{'AttributeName': 'ProductID', 'AttributeType': 'S'}],
-        'BillingMode': 'PAY_PER_REQUEST',
+        "TableName": settings.PRODUCTS_TABLE,
+        "KeySchema": [{"AttributeName": "product_id", "KeyType": "HASH"}],
+        "AttributeDefinitions": [{"AttributeName": "product_id", "AttributeType": "S"}],
+        "BillingMode": "PAY_PER_REQUEST",
     },
     {
-        'TableName': settings.ORDERS_TABLE,
-        'KeySchema': [{'AttributeName': 'OrderID', 'KeyType': 'HASH'}],
-        'AttributeDefinitions': [{'AttributeName': 'OrderID', 'AttributeType': 'S'}],
-        'BillingMode': 'PAY_PER_REQUEST',
+        "TableName": settings.ORDERS_TABLE,
+        "KeySchema": [{"AttributeName": "order_id", "KeyType": "HASH"}],
+        "AttributeDefinitions": [{"AttributeName": "order_id", "AttributeType": "S"}],
+        "BillingMode": "PAY_PER_REQUEST",
     },
     {
-        'TableName': settings.SUBSCRIPTIONS_TABLE,
-        'KeySchema': [{'AttributeName': 'SubscriptionID', 'KeyType': 'HASH'}],
-        'AttributeDefinitions': [{'AttributeName': 'SubscriptionID', 'AttributeType': 'S'}],
-        'BillingMode': 'PAY_PER_REQUEST',
+        "TableName": settings.SUBSCRIPTIONS_TABLE,
+        "KeySchema": [{"AttributeName": "subscription_id", "KeyType": "HASH"}],
+        "AttributeDefinitions": [{"AttributeName": "subscription_id", "AttributeType": "S"}],
+        "BillingMode": "PAY_PER_REQUEST",
     },
 ]
 
 
+# ── Initialize Tables ─────────────────────────────────────
+
 def init_tables():
     """
     Create DynamoDB tables if they don't already exist.
-    Safe to call on every startup — skips already-existing tables.
+    Safe to call on every startup.
     """
     client = get_dynamodb_client()
-    existing = client.list_tables()['TableNames']
 
-    for defn in TABLE_DEFINITIONS:
-        name = defn['TableName']
+    try:
+        existing = client.list_tables()["TableNames"]
+    except ClientError as e:
+        logger.error(f"DynamoDB list_tables error: {e}")
+        return
+
+    for definition in TABLE_DEFINITIONS:
+        name = definition["TableName"]
+
         if name not in existing:
             try:
-                db().create_table(**defn)
+                db().create_table(**definition)
                 logger.info(f"Created DynamoDB table: {name}")
             except ClientError as e:
                 logger.error(f"Failed to create table {name}: {e}")
